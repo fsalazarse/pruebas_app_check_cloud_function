@@ -8,12 +8,11 @@ class App_check:
     def validate_token(self, app_check):
         
         try:
-            #Verificar si el token es valido
-            verify_token = app_check.verify_token(self.app_check_token)
-            return verify_token
+            verify_token = app_check.verify_token(self.app_check_token) #Verificar si el token es valido
+            return True # Si el token es valido retornar True
         # Si el token no es valido
         except (ValueError, jwt.exceptions.DecodeError):
-            #Enviar una respuesta de error 
-            raise ValueError("Invalid Token")
+          
+            raise ValueError("Invalid Token")   #Enviar una respuesta de error 
         
         

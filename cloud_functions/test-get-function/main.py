@@ -1,7 +1,8 @@
+import json
 from firebase_functions import https_fn
 from firebase_admin import initialize_app, app_check
 from app_check.app_check import App_check
-import jwt
+from firestore.firestore import Firestore
 
 initialize_app()
 
@@ -19,15 +20,18 @@ def test_get_functions(req: https_fn.Request) -> https_fn.Response:
         return https_fn.Response("", headers=headers)
 
     try:
-
-        Ins_app_check = App_check(app_check_token)
-        # Obtener token del app_check
-        app_check_token = req.headers.get("X-Firebase-AppCheck", default="")
-        #Validar si el token es valido
-        validate_token = Ins_app_check.validate_token(app_check)
-        print(validate_token)
+        
+        app_check_token = req.headers.get("X-Firebase-AppCheck", default="") # Obtener token del app_check
+        Ins_app_check = App_check(app_check_token) 
+        token_is_valid = Ins_app_check.validate_token(app_check) # Validar si el token es valido
+         
+        # Si el token es valido
+        if token_is_valid:
+            Ins_firestore = Firestore()
+            docs = Ins_firestore.get_docs()
    
-        return https_fn.Response("Success", headers=headers)
+         # Convertir el arreglo de diccionarios a JSON y devolverlo en la respuesta
+            return https_fn.Response(json.dumps(docs), headers=headers)
 
     except ValueError as error:
         # Captura específica de la excepción ValueError y devuelve una respuesta de error con el mensaje
